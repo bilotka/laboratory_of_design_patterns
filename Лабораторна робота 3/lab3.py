@@ -76,7 +76,6 @@ class TaxiIntegrator:
 # Приклад виконання
 def test_adapter() -> None: 
     integrator = TaxiIntegrator()
-
     integrator.add_service(Uklon())
     integrator.add_service(Bolt())
     integrator.add_service(Uber())
