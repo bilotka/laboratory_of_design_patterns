@@ -6,9 +6,11 @@
 from typing import Protocol
 from datetime import datetime
 
+
 class ITaxi(Protocol):
     def order_trip(self, start: str, end: str) -> None:
         ...
+
 
 class Uklon:
     def make_order(self, end: str, start: str):
@@ -23,6 +25,7 @@ class Bolt:
 class Uber:
     def order(self, start: str, end: str, time: str):
         print(f"[Uber] Замовлення: {start} → {end} о {time}")
+
 
 class UklonAdapter:
     def __init__(self, service: Uklon):
@@ -55,7 +58,6 @@ class TaxiIntegrator:
         self.services: list[ITaxi] = []
 
     def add_service(self, service):
-
         if isinstance(service, Uklon):
             self.services.append(UklonAdapter(service))
 
@@ -66,18 +68,20 @@ class TaxiIntegrator:
             self.services.append(UberAdapter(service))
 
     def order_taxi(self, start: str, end: str):
-        print(f"\nЗамовлення таксі з {start} до {end}")
+        print(f"\n Замовлення таксі з {start} до {end}")
         for service in self.services:
             service.order_trip(start, end)
 
 
 # Приклад виконання
 def test_adapter() -> None: 
+    integrator = TaxiIntegrator()
     integrator.add_service(Uklon())
     integrator.add_service(Bolt())
     integrator.add_service(Uber())
 
     integrator.order_taxi("вул. Університетська 14", "пл. Народна 3")
     
+
 if __name__ == "__main__": 
     test_adapter()
