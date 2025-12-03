@@ -1,18 +1,14 @@
 #Варіант  6. Система містить записи про університети, які можуть складатись із факультетів, які, в свою чергу,   складаються із 
 # кафедр, на яких працюють викладачі, доценти та професори. Для кожного працівника відомий його стаж та заробітна плата.
 #а) підрахувати скільки коштів потрібно для виплати заробітної плати на кожному університеті, факультеті,  кафедрі.
-#б)  всім працівникам, у яких стаж перевищує Х років збільшити заробітну плату на  У%Врахувати можливість в майбутньому додавання інших операцій
+#б)  всім працівникам, у яких стаж перевищує Х років збільшити заробітну плату на  У
+# %Врахувати можливість в майбутньому додавання інших операцій
 from __future__ import annotations
-from typing import Protocol
+from typing import Protocol, List
 from dataclasses import dataclass
 
-class IVisitable(Protocol):
-    def accept(self, visitor: IVisitor) -> None: ...
-
-
 class IVisitor(Protocol):
-    def visit(self, target: Professor | Department | Faculty | University): ...
-
+    def visit(self, target): ...
 
 @dataclass
 class Professor:
@@ -23,93 +19,79 @@ class Professor:
     def accept(self, visitor: IVisitor):
         return visitor.visit(self)
 
-
 @dataclass
 class Department:
     name: str
-    employees: list
+    employees: List[Professor]
 
     def accept(self, visitor: IVisitor):
         return visitor.visit(self)
-
 
 @dataclass
 class Faculty:
     name: str
-    departments: list
+    departments: List[Department]
 
     def accept(self, visitor: IVisitor):
         return visitor.visit(self)
 
-
 @dataclass
 class University:
     name: str
-    faculties: list
+    faculties: List[Faculty]
 
     def accept(self, visitor: IVisitor):
         return visitor.visit(self)
 
 class SalaryCalculator:
-
     def __init__(self):
-        self.result = {}
+        self.result: dict[str, float] = {}
 
-    def visit(self, target: Professor | Department | Faculty | University):
-
+    def visit(self, target):
         match target:
-
             case University(name=name, faculties=faculties):
-                total = 0
-                for f in faculties:
-                    total += f.accept(self)
+                total = sum(f.accept(self) or 0 for f in faculties)
                 self.result[name] = total
                 return total
 
             case Faculty(name=name, departments=departments):
-                total = 0
-                for d in departments:
-                    total += d.accept(self)
+                total = sum(d.accept(self) or 0 for d in departments)
                 self.result[name] = total
                 return total
 
-            case Department(name=name, proffesors=proffesors):
-                total = 0
-                for p in proffesors:
-                    total += p.accept(self)
+            case Department(name=name, employees=employees):
+                total = sum(p.accept(self) or 0 for p in employees)
                 self.result[name] = total
                 return total
 
             case Professor(salary=s):
                 return s
 
-class SalaryIncreaseVisitor:
+            case _:
+                return 0.0
 
+class SalaryIncreaseVisitor:
     def __init__(self, min_exp: int, percent: float):
         self.min_exp = min_exp
-        self.percent = percent / 100
+        self.percent = percent / 100.0
 
-    def visit(self, target: Professor | Department | Faculty | University):
-
+    def visit(self, target):
         match target:
-
             case University(faculties=faculties):
                 for f in faculties:
                     f.accept(self)
-
             case Faculty(departments=departments):
                 for d in departments:
                     d.accept(self)
-
             case Department(employees=employees):
                 for p in employees:
                     p.accept(self)
-
             case Professor() as p:
                 if p.experience_years > self.min_exp:
                     p.salary *= (1 + self.percent)
-        
-# Приклад використання
+            case _:
+                pass
+
 if __name__ == "__main__":
     dep_system_analysis = Department("System Analysis Department", [
         Professor("Mykola Mykolayovych", 5, 20000),
@@ -121,7 +103,7 @@ if __name__ == "__main__":
         Professor("Oleg Olegovych", 15, 40000),
     ])
 
-    faculty_math= Faculty(" Math Faculty", [dep_system_analysis, dep_algebra])
+    faculty_math = Faculty("Math Faculty", [dep_system_analysis, dep_algebra])
     uni = University("Uzhnu", [faculty_math])
 
     calc1 = SalaryCalculator()
