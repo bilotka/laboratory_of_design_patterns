@@ -73,5 +73,5 @@ if __name__ == "__main__":
     enemy_1 = Enemy1()
     enemy_1.perform_combat_cycle(player)
 
-    enemy_2 = Enemy1()
+    enemy_2 = Enemy2()
     enemy_2.perform_combat_cycle(player)
