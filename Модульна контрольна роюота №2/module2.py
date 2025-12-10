@@ -43,7 +43,7 @@ class Enemy(ABC):
     def _retreat(self) -> None: ...
 
 
-class MeleeEnemy(Enemy):
+class Enemy1(Enemy):
 
     def _approach(self)-> None:
         print("   [Наближення]: Швидко наближається до цілі впритул.")
@@ -54,7 +54,7 @@ class MeleeEnemy(Enemy):
     def _retreat(self)-> None:
         print("   [Відступ]: Повільно відходить на один крок.")
 
-class RangedEnemy(Enemy):
+class Enemy2(Enemy):
 
     def _approach(self)-> None:
         print("   [Наближення]: Наближається на безпечну відстань (10 метрів) і займає позицію.")
@@ -70,8 +70,8 @@ class RangedEnemy(Enemy):
 if __name__ == "__main__":
     player = "Головний Герой"
 
-    melee_enemy = MeleeEnemy()
-    melee_enemy.perform_combat_cycle(player)
+    enemy_1 = Enemy1()
+    enemy_1.perform_combat_cycle(player)
 
-    ranged_enemy = RangedEnemy()
-    ranged_enemy.perform_combat_cycle(player)
+    enemy_2 = Enemy1()
+    enemy_2.perform_combat_cycle(player)
