@@ -8,10 +8,14 @@ from typing import Protocol, List
 from dataclasses import dataclass
 
 class IVisitor(Protocol):
-    def visit(self, target): ...
+    def visit(self, target: "IVisitable"): ...
+
+
+class IVisitable(Protocol):
+    def accept(self, visitor: IVisitor): ...
 
 @dataclass
-class Professor:
+class Professor(IVisitable):
     name: str
     experience_years: int
     salary: float
@@ -20,7 +24,7 @@ class Professor:
         return visitor.visit(self)
 
 @dataclass
-class Department:
+class Department(IVisitable):
     name: str
     employees: List[Professor]
 
@@ -28,7 +32,7 @@ class Department:
         return visitor.visit(self)
 
 @dataclass
-class Faculty:
+class Faculty(IVisitable):
     name: str
     departments: List[Department]
 
@@ -36,14 +40,14 @@ class Faculty:
         return visitor.visit(self)
 
 @dataclass
-class University:
+class University(IVisitable):
     name: str
     faculties: List[Faculty]
 
     def accept(self, visitor: IVisitor):
         return visitor.visit(self)
 
-class SalaryCalculator:
+class SalaryCalculator(IVisitor):
     def __init__(self):
         self.result: dict[str, float] = {}
 
@@ -70,7 +74,7 @@ class SalaryCalculator:
             case _:
                 return 0.0
 
-class SalaryIncreaseVisitor:
+class SalaryIncreaseVisitor(IVisitor):
     def __init__(self, min_exp: int, percent: float):
         self.min_exp = min_exp
         self.percent = percent / 100.0
@@ -80,17 +84,18 @@ class SalaryIncreaseVisitor:
             case University(faculties=faculties):
                 for f in faculties:
                     f.accept(self)
+
             case Faculty(departments=departments):
                 for d in departments:
                     d.accept(self)
+
             case Department(employees=employees):
                 for p in employees:
                     p.accept(self)
+
             case Professor() as p:
                 if p.experience_years > self.min_exp:
                     p.salary *= (1 + self.percent)
-            case _:
-                pass
 
 if __name__ == "__main__":
     dep_system_analysis = Department("System Analysis Department", [
