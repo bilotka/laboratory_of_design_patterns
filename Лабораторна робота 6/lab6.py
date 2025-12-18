@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import List, Optional
+from typing import List
 from datetime import datetime, timedelta
 # Шаблон СТРАТЕГІЯ (Strategy)
 # Дозволяє змінювати спосіб відправки повідомлень (Консоль, Email тощо)
@@ -77,7 +77,7 @@ class KartingSystemFacade:
         self.bookings: List[Booking] = []
         self.sessions: List[RaceSession] = []  
         
-        self.current_user: Optional[User] = None
+        self.current_user: User | None = None 
 
     def register(self, name: str, password: str) -> bool:
         if any(u.name == name for u in self.users):
